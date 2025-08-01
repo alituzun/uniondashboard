@@ -240,7 +240,12 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             resultDiv.innerHTML = html;
         } catch (error) {
-            resultDiv.innerHTML = `<span style='color:red'>Error: ${error.message}</span>`;
+            // Eğer fetch hatası veya 404 dışı bir hata varsa kullanıcıya sadece 'User not found.' göster
+            let msg = 'User not found.';
+            if (error && error.message && error.message.includes('404')) {
+                msg = 'User not found.';
+            }
+            resultDiv.innerHTML = `<span style='color:red'>${msg}</span>`;
         }
     });
 });
