@@ -4,7 +4,7 @@
   "description": "A basic JavaScript application to collect user information and manage a database.",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/backend/server.js",
+    "start": "node server.js",
     "build": "echo 'Build script not defined yet'"
   },
   "dependencies": {
@@ -13,7 +13,10 @@
     "express": "^4.21.2",
     "mongodb": "^6.18.0",
     "mongoose": "^8.17.0",
-    "nodemon": "^2.0.7"
+    "nodemon": "^2.0.7",
+    "node-fetch": "^2.6.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
   },
   "author": "",
   "license": "ISC"

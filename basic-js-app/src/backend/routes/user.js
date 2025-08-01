@@ -6,6 +6,105 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 
+// Yeni endpoint: yaps_season_one.json'dan username ve jsonInput ile CSV oluştur
+router.get('/export-yaps-season-one-csv', async (req, res) => {
+    const jsonPath = path.join(__dirname, '../db/yaps_season_one.json');
+    const csvPath = path.join(__dirname, '../db/yaps_season_one_export.csv');
+    if (!fs.existsSync(jsonPath)) {
+        return res.status(404).json({ message: 'yaps_season_one.json dosyası bulunamadı' });
+    }
+    try {
+        const data = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+        const csvRows = [
+            'username,jsonInput'
+        ];
+        for (const item of data) {
+            const username = item.username ? String(item.username).replace(/"/g, '""') : '';
+            const { username: _username, ...rest } = item;
+            const jsonInput = JSON.stringify(rest).replace(/"/g, '""');
+            csvRows.push(`"${username}","${jsonInput}"`);
+        }
+        fs.writeFileSync(csvPath, csvRows.join('\n'), 'utf8');
+        res.json({ message: 'CSV başarıyla kaydedildi', path: csvPath });
+    } catch (error) {
+        res.status(500).json({ message: 'CSV oluşturma hatası', error: error.message });
+    }
+});
+
+// Yeni endpoint: yaps_season_zero.json'dan username ve jsonInput ile CSV oluştur
+router.get('/export-yaps-season-zero-csv', async (req, res) => {
+    const jsonPath = path.join(__dirname, '../db/yaps_season_zero.json');
+    const csvPath = path.join(__dirname, '../db/yaps_season_zero_export.csv');
+    if (!fs.existsSync(jsonPath)) {
+        return res.status(404).json({ message: 'yaps_season_zero.json dosyası bulunamadı' });
+    }
+    try {
+        const data = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+        const csvRows = [
+            'username,jsonInput'
+        ];
+        for (const item of data) {
+            const username = item.username ? String(item.username).replace(/"/g, '""') : '';
+            const { username: _username, ...rest } = item;
+            const jsonInput = JSON.stringify(rest).replace(/"/g, '""');
+            csvRows.push(`"${username}","${jsonInput}"`);
+        }
+        fs.writeFileSync(csvPath, csvRows.join('\n'), 'utf8');
+        res.json({ message: 'CSV başarıyla kaydedildi', path: csvPath });
+    } catch (error) {
+        res.status(500).json({ message: 'CSV oluşturma hatası', error: error.message });
+    }
+});
+
+// Yeni endpoint: leaderboard_full.json'daki verileri display_name ve jsonInput olarak CSV'ye aktar
+router.get('/export-leaderboard-csv', async (req, res) => {
+    const leaderboardPath = path.join(__dirname, '../db/leaderboard_full.json');
+    const csvPath = path.join(__dirname, '../db/leaderboard_export.csv');
+    if (!fs.existsSync(leaderboardPath)) {
+        return res.status(404).json({ message: 'leaderboard_full.json dosyası bulunamadı' });
+    }
+    try {
+        const leaderboardData = JSON.parse(fs.readFileSync(leaderboardPath, 'utf8'));
+        const csvRows = [
+            'display_name,jsonInput'
+        ];
+        for (const item of leaderboardData) {
+            const displayName = item.display_name ? String(item.display_name).replace(/"/g, '""') : '';
+            // Diğer tüm alanları display_name hariç jsonInput olarak al
+            const { display_name, ...rest } = item;
+            const jsonInput = JSON.stringify(rest).replace(/"/g, '""');
+            csvRows.push(`"${displayName}","${jsonInput}"`);
+        }
+        fs.writeFileSync(csvPath, csvRows.join('\n'), 'utf8');
+        res.json({ message: 'CSV başarıyla kaydedildi', path: csvPath });
+    } catch (error) {
+        res.status(500).json({ message: 'CSV oluşturma hatası', error: error.message });
+    }
+});
+
+// Yeni endpoint: Her leveldeki toplam kişi sayısını döndür
+router.get('/level-counts', async (req, res) => {
+    try {
+        const result = {};
+        let total = 0;
+        for (let lvl = 1; lvl <= 10; lvl++) {
+            const filePath = path.join(__dirname, '../db/leaderboard_level_' + lvl + '.json');
+            if (fs.existsSync(filePath)) {
+                const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+                const count = Array.isArray(data) ? data.length : 0;
+                result['level_' + lvl] = count;
+                total += count;
+            } else {
+                result['level_' + lvl] = 0;
+            }
+        }
+        result['total'] = total;
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ message: 'Error reading level files', error: error.message });
+    }
+});
+
 // Yeni endpoint: username ile leaderboard_full.json'dan total_xp ve pfp, yaps_season_one.json'dan mindshare döndür
 router.get('/get-user-summary/:username', async (req, res) => {
     const username = req.params.username;
