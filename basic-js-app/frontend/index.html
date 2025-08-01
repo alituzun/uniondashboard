@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Union Mini Dashboard</title>
+    <style>
+        body { background: #111; color: #fff; font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        .search-box { display: flex; gap: 10px; }
+        input[type=text] { padding: 10px; border-radius: 5px; border: none; background: #fff; color: #222; font-size: 1rem; }
+        button { padding: 10px 20px; border-radius: 5px; border: none; background: #0074d9; color: #fff; font-size: 1rem; cursor: pointer; }
+        button:hover { background: #005fa3; }
+        .result { margin-top: 30px; background: #222; padding: 20px; border-radius: 8px; min-width: 300px; }
+    </style>
+</head>
+<body>
+    <div style="margin-top:18px; background:#222; color:#eee; padding:14px 18px; border-radius:8px; max-width:420px; font-size:1rem; line-height:1.6;">
+        <b>Notes:</b><br>
+        - These data are fetched from union.dashboard.<br>
+        - There are 351,125 testnet user records available.<br>
+        - Mindshare rates will update here as they change.<br>
+        - Season 1 mindshare rates are not shown for users after rank 1,000 due to data limitations.<br>
+        - The purpose is to have all information on a single page only.<br>
+        - Created by <a href="https://x.com/richnftcrypto" target="_blank" style="color:#4fc3f7;text-decoration:underline;font-weight:bold;">melkor.union</a>.
+    </div>
+    <form class="search-box" id="searchForm">
+        <input type="text" id="username" placeholder="username" required />
+        <button type="submit">Check</button>
+    </form>
+    <div class="result" id="result"></div>
+    <script src="./app.js"></script>
+</body>
+</html>
