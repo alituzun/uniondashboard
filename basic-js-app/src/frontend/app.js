@@ -5,10 +5,12 @@ document.addEventListener('DOMContentLoaded', function () {
         e.preventDefault();
         const username = document.getElementById('username').value.trim();
         if (!username) {
-            resultDiv.innerHTML = '<span style="color:red">Please enter a username.</span>';
+            resultDiv.innerHTML = '<div style="color:#ff6b6b; text-align:center; padding:20px;">Please enter a username.</div>';
+            document.getElementById('result').style.display = 'block';
             return;
         }
-        resultDiv.innerHTML = 'Loading...';
+        resultDiv.innerHTML = '<div style="color:#aaa; text-align:center; padding:40px; font-size:1.1rem;">🔍 Loading user information...</div>';
+        document.getElementById('result').style.display = 'block';
         try {
             // Supabase REST API'den leaderboard_full tablosunda önce display_name ilike (tam eşleşme), sonra username ilike (tam eşleşme), sonra display_name ilike (partial), sonra username ilike (partial) ile arama (hepsi case-insensitive)
             const apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2dmxxYnR3cWV0bHRkY3Zpb2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQwMjM4MzMsImV4cCI6MjA2OTU5OTgzM30.d-leDFpzc6uxDvq47_FC0Fqh0ztaL11Oozm-z6T9N_M';
@@ -83,7 +85,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
             if (!user) {
-                resultDiv.innerHTML = `<span style='color:red'>User not found. (display_name ve username ilike ile, hem tam hem içinde geçen arandı)</span>`;
+                resultDiv.innerHTML = `<div style='color:#ff6b6b; text-align:center; padding:30px; background:rgba(255, 107, 107, 0.1); border-radius:10px; border:1px solid rgba(255, 107, 107, 0.3);'>❌ User not found.<br><small style="color:#aaa; margin-top:10px; display:block;">Searched by display_name and username (exact and partial matches)</small></div>`;
+                document.getElementById('result').style.display = 'block';
                 return;
             }
             // Mindshare için yaps_season_one tablosundan çek
@@ -228,25 +231,33 @@ document.addEventListener('DOMContentLoaded', function () {
                     title = json.title || title;
                 } catch (e) {}
             }
-            html += `<div style='margin-bottom:12px;padding:8px 12px;background:#333;border-radius:8px;'>`;
-            html += `<div><b>Username:</b> ${usernameOrDisplay ?? '-'}</div>`;
-            html += `<div><b>Total XP:</b> ${total_xp ?? '-'}</div>`;
-            html += `<div><b>Level :</b> ${level ?? '-'}</div>`;
-            html += `<div><b>Title :</b> ${title ?? '-'}</div>`;
-            html += `<div><b>Mindshare s1:</b> ${mindshare_s1}</div>`;
-            html += `<div><b>Mindshare s0:</b> ${mindshare_s0}</div>`;
-            html += `</div>`;
+            
+            html += `<div style="text-align: center; margin-bottom: 25px;">`;
+            html += `<h3 style="color: #4fc3f7; margin: 0 0 15px 0; font-size: 1.5rem;">User Information</h3>`;
             if (pfp) {
-                html += `<img src='${pfp}' alt='pfp' style='width:220px;height:220px;border-radius:16px;border:2px solid #2196f3;background:#fff;box-shadow:0 2px 16px #0006;margin-top:12px;'>`;
+                html += `<img src='${pfp}' alt='Profile Picture' style='width:120px;height:120px;border-radius:50%;border:3px solid #4fc3f7;background:#fff;box-shadow:0 8px 25px rgba(79, 195, 247, 0.3);margin-bottom:20px;'>`;
             }
+            html += `</div>`;
+            
+            html += `<div class="user-info">`;
+            html += `<div class="info-item"><strong>Username</strong><div class="info-value">${usernameOrDisplay ?? '-'}</div></div>`;
+            html += `<div class="info-item"><strong>Total XP</strong><div class="info-value">${total_xp ? total_xp.toLocaleString() : '-'}</div></div>`;
+            html += `<div class="info-item"><strong>Level</strong><div class="info-value">${level ?? '-'}</div></div>`;
+            html += `<div class="info-item"><strong>Title</strong><div class="info-value">${title ?? '-'}</div></div>`;
+            html += `<div class="info-item"><strong>Mindshare S1</strong><div class="info-value">${mindshare_s1}%</div></div>`;
+            html += `<div class="info-item"><strong>Mindshare S0</strong><div class="info-value">${mindshare_s0}%</div></div>`;
+            html += `</div>`;
+            
+            document.getElementById('result').style.display = 'block';
             resultDiv.innerHTML = html;
         } catch (error) {
             // Eğer fetch hatası veya 404 dışı bir hata varsa kullanıcıya sadece 'User not found.' göster
-            let msg = 'User not found.';
+            let msg = '❌ User not found.';
             if (error && error.message && error.message.includes('404')) {
-                msg = 'User not found.';
+                msg = '❌ User not found.';
             }
-            resultDiv.innerHTML = `<span style='color:red'>${msg}</span>`;
+            resultDiv.innerHTML = `<div style='color:#ff6b6b; text-align:center; padding:30px; background:rgba(255, 107, 107, 0.1); border-radius:10px; border:1px solid rgba(255, 107, 107, 0.3);'>${msg}<br><small style="color:#aaa; margin-top:10px; display:block;">Please check the username and try again</small></div>`;
+            document.getElementById('result').style.display = 'block';
         }
     });
 });

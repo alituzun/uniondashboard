@@ -1,4 +1,5 @@
 
+
 // Gerekli modüller sadece en başta tanımlanır
 const express = require('express');
 const router = express.Router();
@@ -7,28 +8,181 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 
-// Yeni endpoint: leaderboard_full_1...71.json dosyalarını gezip display_name ve jsonInput ile CSV oluştur
+// Paginated leaderboard endpoint: returns users sorted by display_name, paginated
+router.get('/api/leaderboard', async (req, res) => {
+    const filePath = path.join(__dirname, '../db/leaderboard_full.json');
+    if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ message: 'leaderboard_full.json dosyası bulunamadı' });
+    }
+    try {
+        const allData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        // Sort by display_name (case-insensitive)
+        allData.sort((a, b) => {
+            const nameA = (a.display_name || '').toLowerCase();
+            const nameB = (b.display_name || '').toLowerCase();
+            if (nameA < nameB) return -1;
+            if (nameA > nameB) return 1;
+            return 0;
+        });
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 100;
+        const start = (page - 1) * limit;
+        const end = start + limit;
+        const pagedData = allData.slice(start, end);
+        res.json({
+            page,
+            limit,
+            total: allData.length,
+            totalPages: Math.ceil(allData.length / limit),
+            data: pagedData
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Leaderboard verisi okunamadı', error: error.message });
+    }
+});
+
+
+
+// Yeni endpoint: leaderboard_export.csv dosyasını okuyup 1-10 level arası kişi sayılarını ve toplam XP'yi döndürür
+router.get('/rank-counts-from-csv', async (req, res) => {
+    const csvPath = path.join(__dirname, '../db/leaderboard_export.csv');
+    if (!fs.existsSync(csvPath)) {
+        return res.status(404).json({ message: 'leaderboard_export.csv dosyası bulunamadı' });
+    }
+    try {
+        const csvData = fs.readFileSync(csvPath, 'utf8');
+        const lines = csvData.split(/\r?\n/).slice(1); // başlık hariç
+        const levelStats = {};
+        
+        // Her level için hem count hem de totalXp initialize et
+        for (let lvl = 1; lvl <= 10; lvl++) {
+            levelStats[lvl] = {
+                count: 0,
+                totalXp: 0
+            };
+        }
+        
+        for (const line of lines) {
+            if (!line.trim()) continue;
+            
+            // CSV formatı: "rank","display_name","total_xp","level"
+            const parts = line.split('","');
+            if (parts.length < 4) continue;
+            
+            // Level'i al (son sütun, tırnakları temizle)
+            const levelStr = parts[3].replace(/"/g, '');
+            const level = parseInt(levelStr);
+            
+            // Total XP'yi al (üçüncü sütun)
+            const totalXpStr = parts[2];
+            const totalXp = parseInt(totalXpStr) || 0;
+            
+            if (level !== undefined && level !== null && !isNaN(level) && levelStats.hasOwnProperty(level)) {
+                levelStats[level].count++;
+                levelStats[level].totalXp += totalXp;
+            }
+        }
+        
+        res.json({ 
+            message: 'Level bazında kişi sayısı ve toplam XP hesaplandı', 
+            levelStats 
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'CSV okuma veya işleme hatası', error: error.message });
+    }
+});
+
+
+// Yeni endpoint: leaderboard_full_1...71.json dosyalarını gezip rank, display_name, total_xp, level ile CSV oluştur
 router.get('/export-leaderboard-csv', async (req, res) => {
     const dbDir = path.join(__dirname, '../db');
     const csvPath = path.join(dbDir, 'leaderboard_export.csv');
     const maxFiles = 71;
-    const csvRows = [
-        'display_name,jsonInput'
-    ];
+    const allItems = [];
+    
     try {
+        // Önce tüm dosyaları oku ve verileri topla
         for (let i = 1; i <= maxFiles; i++) {
             const filePath = path.join(dbDir, `leaderboard_full_${i}.json`);
             if (!fs.existsSync(filePath)) continue;
             const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
             for (const item of data) {
-                const displayName = item.display_name ? String(item.display_name).replace(/"/g, '""') : '';
-                const { display_name, ...rest } = item;
-                const jsonInput = JSON.stringify(rest).replace(/"/g, '""');
-                csvRows.push(`"${displayName}","${jsonInput}"`);
+                // jsonInput içindeki rank bilgisini al
+                let rank = null;
+                let totalXp = null;
+                let level = null;
+                
+                // Eğer item'ın kendisinde rank varsa al, yoksa jsonInput'tan dene
+                if (item.rank !== undefined && item.rank !== null) {
+                    rank = item.rank;
+                }
+                if (item.total_xp !== undefined && item.total_xp !== null) {
+                    totalXp = item.total_xp;
+                }
+                if (item.level !== undefined && item.level !== null) {
+                    level = item.level;
+                }
+                
+                // Eğer jsonInput string ise parse et
+                let jsonInput = item;
+                if (typeof item.jsonInput === 'string') {
+                    try {
+                        jsonInput = JSON.parse(item.jsonInput);
+                        if (rank === null && jsonInput.rank !== undefined && jsonInput.rank !== null) {
+                            rank = jsonInput.rank;
+                        }
+                        if (totalXp === null && jsonInput.total_xp !== undefined && jsonInput.total_xp !== null) {
+                            totalXp = jsonInput.total_xp;
+                        }
+                        if (level === null && jsonInput.level !== undefined && jsonInput.level !== null) {
+                            level = jsonInput.level;
+                        }
+                    } catch (e) {
+                        // JSON parse hatası, mevcut değerleri kullan
+                    }
+                }
+                
+                const displayName = item.display_name || '';
+                
+                allItems.push({
+                    rank: rank,
+                    display_name: displayName,
+                    total_xp: totalXp,
+                    level: level
+                });
             }
         }
+        
+        // Rank'a göre sırala (null değerler sona)
+        allItems.sort((a, b) => {
+            if (a.rank === null && b.rank === null) return 0;
+            if (a.rank === null) return 1;
+            if (b.rank === null) return -1;
+            return parseInt(a.rank) - parseInt(b.rank);
+        });
+        
+        // CSV başlığı
+        const csvRows = [
+            'rank,display_name,total_xp,level'
+        ];
+        
+        // Her satırı CSV formatında ekle
+        for (const item of allItems) {
+            const rank = item.rank !== null ? item.rank : '';
+            const displayName = String(item.display_name || '').replace(/"/g, '""');
+            const totalXp = item.total_xp !== null ? item.total_xp : '';
+            const level = item.level !== null ? item.level : '';
+            
+            csvRows.push(`"${rank}","${displayName}","${totalXp}","${level}"`);
+        }
+        
         fs.writeFileSync(csvPath, csvRows.join('\n'), 'utf8');
-        res.json({ message: 'CSV başarıyla kaydedildi', path: csvPath, total: csvRows.length - 1 });
+        res.json({ 
+            message: 'CSV başarıyla kaydedildi', 
+            path: csvPath, 
+            total: csvRows.length - 1,
+            columns: ['rank', 'display_name', 'total_xp', 'level']
+        });
     } catch (error) {
         res.status(500).json({ message: 'CSV oluşturma hatası', error: error.message });
     }
@@ -85,31 +239,62 @@ router.get('/export-yaps-season-zero-csv', async (req, res) => {
     }
 });
 
-// Yeni endpoint: leaderboard_full.json'daki verileri display_name ve jsonInput olarak CSV'ye aktar
-router.get('/export-leaderboard-csv', async (req, res) => {
-    const leaderboardPath = path.join(__dirname, '../db/leaderboard_full.json');
-    const csvPath = path.join(__dirname, '../db/leaderboard_export.csv');
-    if (!fs.existsSync(leaderboardPath)) {
-        return res.status(404).json({ message: 'leaderboard_full.json dosyası bulunamadı' });
+
+// Yeni endpoint: leaderboard_export.csv dosyasını 30k kayıt olacak şekilde parçala
+router.get('/split-csv-by-chunks', async (req, res) => {
+    const dbDir = path.join(__dirname, '../db');
+    const csvPath = path.join(dbDir, 'leaderboard_export.csv');
+    const chunkSize = 30000; // 30k kayıt
+    
+    if (!fs.existsSync(csvPath)) {
+        return res.status(404).json({ message: 'leaderboard_export.csv dosyası bulunamadı' });
     }
+    
     try {
-        const leaderboardData = JSON.parse(fs.readFileSync(leaderboardPath, 'utf8'));
-        const csvRows = [
-            'display_name,jsonInput'
-        ];
-        for (const item of leaderboardData) {
-            const displayName = item.display_name ? String(item.display_name).replace(/"/g, '""') : '';
-            // Diğer tüm alanları display_name hariç jsonInput olarak al
-            const { display_name, ...rest } = item;
-            const jsonInput = JSON.stringify(rest).replace(/"/g, '""');
-            csvRows.push(`"${displayName}","${jsonInput}"`);
+        const csvData = fs.readFileSync(csvPath, 'utf8');
+        const lines = csvData.split(/\r?\n/);
+        const header = lines[0]; // CSV başlığı
+        const dataLines = lines.slice(1).filter(line => line.trim()); // Boş satırları çıkar
+        
+        const totalRecords = dataLines.length;
+        const totalChunks = Math.ceil(totalRecords / chunkSize);
+        const createdFiles = [];
+        
+        for (let i = 0; i < totalChunks; i++) {
+            const startIndex = i * chunkSize;
+            const endIndex = Math.min((i + 1) * chunkSize, totalRecords);
+            const chunkLines = dataLines.slice(startIndex, endIndex);
+            
+            // Chunk dosyası oluştur
+            const chunkFileName = `leaderboard_export_chunk_${i + 1}.csv`;
+            const chunkPath = path.join(dbDir, chunkFileName);
+            
+            // Header + chunk verileri
+            const chunkContent = [header, ...chunkLines].join('\n');
+            fs.writeFileSync(chunkPath, chunkContent, 'utf8');
+            
+            createdFiles.push({
+                fileName: chunkFileName,
+                path: chunkPath,
+                recordCount: chunkLines.length,
+                startRecord: startIndex + 1,
+                endRecord: endIndex
+            });
         }
-        fs.writeFileSync(csvPath, csvRows.join('\n'), 'utf8');
-        res.json({ message: 'CSV başarıyla kaydedildi', path: csvPath });
+        
+        res.json({
+            message: 'CSV dosyası başarıyla parçalandı',
+            originalFile: csvPath,
+            totalRecords: totalRecords,
+            chunkSize: chunkSize,
+            totalChunks: totalChunks,
+            createdFiles: createdFiles
+        });
     } catch (error) {
-        res.status(500).json({ message: 'CSV oluşturma hatası', error: error.message });
+        res.status(500).json({ message: 'CSV parçalama hatası', error: error.message });
     }
 });
+
 
 // Yeni endpoint: Her leveldeki toplam kişi sayısını döndür
 router.get('/level-counts', async (req, res) => {

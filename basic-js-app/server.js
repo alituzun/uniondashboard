@@ -1,10 +1,14 @@
 const express = require('express');
 const fetch = require('node-fetch');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 app.use(cors());
+
+// Serve static files from frontend directory
+app.use(express.static(path.join(__dirname, 'src/frontend')));
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_API_KEY = process.env.SUPABASE_API_KEY;
