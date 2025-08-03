@@ -1,46 +1,56 @@
 // testnet-stats.js - Testnet istatistiklerini yükleyip grafikler oluşturur
 (function(){
-    // Hard-coded level stats data
+    // Updated level stats data with latest statistics
     let levelStats = {
         "1": {
-            "count": 67227,
-            "totalXp": 816920
+            "count": 67337,
+            "totalXp": 817990,
+            "averageXp": 12
         },
         "2": {
-            "count": 65181,
-            "totalXp": 3638640
+            "count": 65221,
+            "totalXp": 3641700,
+            "averageXp": 56
         },
         "3": {
-            "count": 83009,
-            "totalXp": 9765000
+            "count": 83123,
+            "totalXp": 9782510,
+            "averageXp": 118
         },
         "4": {
-            "count": 30612,
-            "totalXp": 6934160
+            "count": 30588,
+            "totalXp": 6925880,
+            "averageXp": 226
         },
         "5": {
-            "count": 33751,
-            "totalXp": 12880510
+            "count": 33786,
+            "totalXp": 12894820,
+            "averageXp": 382
         },
         "6": {
-            "count": 33283,
-            "totalXp": 17543330
+            "count": 33318,
+            "totalXp": 17562160,
+            "averageXp": 527
         },
         "7": {
-            "count": 34388,
-            "totalXp": 22788905
+            "count": 34386,
+            "totalXp": 22786955,
+            "averageXp": 663
         },
         "8": {
-            "count": 3550,
-            "totalXp": 2973385
+            "count": 3558,
+            "totalXp": 2979615,
+            "averageXp": 837
         },
         "9": {
             "count": 708,
-            "totalXp": 718170
+            "totalXp": 718015,
+            "averageXp": 1014
         },
         "10": {
-            "count": 58,
-            "totalXp": 71500
+            "count": 59,
+            "totalXp": 72665,
+            "averageXp": 1232
         }
     };
     
@@ -73,13 +83,9 @@
     }
 
     function calculateTotals() {
-        totalUsers = 0;
-        totalXp = 0;
-        
-        for (const level in levelStats) {
-            totalUsers += levelStats[level].count;
-            totalXp += levelStats[level].totalXp;
-        }
+        // Use the summary data from the API response
+        totalUsers = 352084;
+        totalXp = 78182310;
     }
 
     function createStatsCards() {
@@ -93,9 +99,9 @@
         const totalXpCard = createStatCard('Total XP', formatNumber(totalXp), 'Combined experience points');
         statsGrid.appendChild(totalXpCard);
         
-        // Ortalama XP kartı
-        const avgXp = totalUsers > 0 ? Math.round(totalXp / totalUsers) : 0;
-        const avgXpCard = createStatCard('Average XP', formatNumber(avgXp), 'XP per user');
+        // Ortalama XP kartı (use calculated average from API: 222)
+        const avgXp = 222;
+        const avgXpCard = createStatCard('Average XP', formatNumber(avgXp), 'XP per user overall');
         statsGrid.appendChild(avgXpCard);
         
         // En yüksek level
@@ -261,11 +267,7 @@
         const ctx = document.getElementById('avgXpChart').getContext('2d');
         
         const levels = Object.keys(levelStats).sort((a, b) => Number(a) - Number(b));
-        const avgXps = levels.map(level => {
-            const count = levelStats[level].count;
-            const totalXp = levelStats[level].totalXp;
-            return count > 0 ? Math.round(totalXp / count) : 0;
-        });
+        const avgXps = levels.map(level => levelStats[level].averageXp);
         
         new Chart(ctx, {
             type: 'radar',
