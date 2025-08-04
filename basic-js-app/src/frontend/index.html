@@ -167,6 +167,111 @@
             font-size: 1.1rem;
             font-weight: bold;
         }
+        .achievements-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        .achievements-title {
+            color: #4fc3f7;
+            margin: 0 0 15px 0;
+            font-size: 1.3rem;
+            text-align: center;
+        }
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .achievements-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+        .achievements-grid::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        .achievements-grid::-webkit-scrollbar-thumb {
+            background: rgba(79, 195, 247, 0.5);
+            border-radius: 3px;
+        }
+        .achievements-grid::-webkit-scrollbar-thumb:hover {
+            background: rgba(79, 195, 247, 0.7);
+        }
+        .achievement-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            transition: all 0.3s ease;
+            height: fit-content;
+        }
+        .achievement-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 195, 247, 0.2);
+        }
+        .achievement-title {
+            color: #76ff03;
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+            line-height: 1.2;
+        }
+        .achievement-description {
+            color: #ccc;
+            font-size: 0.85rem;
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+        .achievement-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            font-size: 0.75rem;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .achievement-type {
+            background: rgba(79, 195, 247, 0.2);
+            color: #4fc3f7;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.7rem;
+        }
+        .achievement-date {
+            color: #aaa;
+            font-size: 0.7rem;
+        }
+        .achievement-xp {
+            background: rgba(118, 255, 3, 0.2);
+            color: #76ff03;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.7rem;
+        }
+        .loading-achievements {
+            text-align: center;
+            color: #aaa;
+            padding: 20px;
+            font-style: italic;
+        }
+        .no-achievements {
+            text-align: center;
+            color: #ff6b6b;
+            padding: 20px;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
@@ -189,6 +294,19 @@
             .user-info {
                 grid-template-columns: 1fr;
             }
+            .achievements-grid {
+                grid-template-columns: 1fr;
+                max-height: 300px;
+            }
+            .achievement-item {
+                padding: 10px;
+            }
+            .achievement-title {
+                font-size: 0.9rem;
+            }
+            .achievement-description {
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
@@ -203,12 +321,13 @@
         <div class="tabs">
             <a href="index.html" class="tab-button active">User Stats</a>
             <a href="testnet-stats.html" class="tab-button">Testnet Stats</a>
+            <a href="reward-stats.html" class="tab-button">Reward Stats</a>
         </div>
 
         <div class="notes-card">
             <h3>Notes:</h3>
             - These data are fetched from union.dashboard.<br>
-            - There are 351,125 testnet user records available.<br>
+            - There are 352,410 testnet user records available.<br>
             - Mindshare rates will update here as they change.<br>
             - Season 1 mindshare rates are not shown for users after rank 1,000 due to data limitations.<br>
             - The purpose is to have all information on a single page only.

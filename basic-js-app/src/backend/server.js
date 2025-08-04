@@ -7,8 +7,13 @@ const db = require('./db/database');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// Body parser middleware with encoding options
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
+
+// Alternative: Use express built-in parsers
+// app.use(express.json({ limit: '50mb' }));
+// app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Connect to the database
 db.connectDB();

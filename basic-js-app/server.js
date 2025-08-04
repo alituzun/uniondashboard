@@ -7,6 +7,10 @@ require('dotenv').config();
 const app = express();
 app.use(cors());
 
+// Use express built-in parsers instead of body-parser to avoid iconv-lite issues
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
 // Serve static files from frontend directory
 app.use(express.static(path.join(__dirname, 'src/frontend')));
 

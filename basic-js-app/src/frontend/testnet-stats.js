@@ -1,29 +1,29 @@
 // testnet-stats.js - Testnet istatistiklerini yükleyip grafikler oluşturur
 (function(){
-    // Updated level stats data with latest statistics
+    // Updated level stats data with latest statistics from CSV split results
     let levelStats = {
         "1": {
-            "count": 67388,
+            "count": 67465,
             "totalXp": 818530,
             "averageXp": 12
         },
         "2": {
-            "count": 65243,
+            "count": 65313,
             "totalXp": 3643355,
             "averageXp": 56
         },
         "3": {
-            "count": 83142,
+            "count": 83160,
             "totalXp": 9784970,
             "averageXp": 118
         },
         "4": {
-            "count": 30626,
+            "count": 30650,
             "totalXp": 6934685,
             "averageXp": 226
         },
         "5": {
-            "count": 33757,
+            "count": 33755,
             "totalXp": 12885720,
             "averageXp": 382
         },
@@ -33,22 +33,22 @@
             "averageXp": 527
         },
         "7": {
-            "count": 34379,
+            "count": 34382,
             "totalXp": 22781595,
             "averageXp": 663
         },
         "8": {
-            "count": 3562,
+            "count": 3563,
             "totalXp": 2982000,
             "averageXp": 837
         },
         "9": {
-            "count": 712,
+            "count": 711,
             "totalXp": 721745,
             "averageXp": 1014
         },
         "10": {
-            "count": 60,
+            "count": 61,
             "totalXp": 73820,
             "averageXp": 1230
         }
@@ -83,8 +83,8 @@
     }
 
     function calculateTotals() {
-        // Use the summary data from the API response
-        totalUsers = 352219;
+        // Updated with latest CSV data showing exact user distribution
+        totalUsers = 352410;
         totalXp = 78203805;
     }
 
