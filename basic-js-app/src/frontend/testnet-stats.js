@@ -3,54 +3,54 @@
     // Updated level stats data with latest statistics
     let levelStats = {
         "1": {
-            "count": 67337,
-            "totalXp": 817990,
+            "count": 67388,
+            "totalXp": 818530,
             "averageXp": 12
         },
         "2": {
-            "count": 65221,
-            "totalXp": 3641700,
+            "count": 65243,
+            "totalXp": 3643355,
             "averageXp": 56
         },
         "3": {
-            "count": 83123,
-            "totalXp": 9782510,
+            "count": 83142,
+            "totalXp": 9784970,
             "averageXp": 118
         },
         "4": {
-            "count": 30588,
-            "totalXp": 6925880,
+            "count": 30626,
+            "totalXp": 6934685,
             "averageXp": 226
         },
         "5": {
-            "count": 33786,
-            "totalXp": 12894820,
+            "count": 33757,
+            "totalXp": 12885720,
             "averageXp": 382
         },
         "6": {
-            "count": 33318,
-            "totalXp": 17562160,
+            "count": 33350,
+            "totalXp": 17577385,
             "averageXp": 527
         },
         "7": {
-            "count": 34386,
-            "totalXp": 22786955,
+            "count": 34379,
+            "totalXp": 22781595,
             "averageXp": 663
         },
         "8": {
-            "count": 3558,
-            "totalXp": 2979615,
+            "count": 3562,
+            "totalXp": 2982000,
             "averageXp": 837
         },
         "9": {
-            "count": 708,
-            "totalXp": 718015,
+            "count": 712,
+            "totalXp": 721745,
             "averageXp": 1014
         },
         "10": {
-            "count": 59,
-            "totalXp": 72665,
-            "averageXp": 1232
+            "count": 60,
+            "totalXp": 73820,
+            "averageXp": 1230
         }
     };
     
@@ -84,8 +84,8 @@
 
     function calculateTotals() {
         // Use the summary data from the API response
-        totalUsers = 352084;
-        totalXp = 78182310;
+        totalUsers = 352219;
+        totalXp = 78203805;
     }
 
     function createStatsCards() {
@@ -194,7 +194,7 @@
                                     return formatNumber(value);
                                 }
                                 // Gerçek veri değerlerini de göster
-                                const actualCounts = [67176, 65127, 82993, 30599, 33754, 33277, 34387, 3551, 707, 58];
+                                const actualCounts = [67388, 65243, 83142, 30626, 33757, 33350, 34379, 3562, 712, 60];
                                 if (actualCounts.includes(value)) {
                                     return formatNumber(value);
                                 }
