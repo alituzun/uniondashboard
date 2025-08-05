@@ -13,14 +13,19 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 const userRoutes = require('../src/backend/routes/user');
 const refreshRoutes = require('../src/backend/routes/refresh');
 
-// API Routes
-app.use('/api/user', userRoutes);
-app.use('/api/refresh', refreshRoutes);
+// API Routes - remove /api prefix since we're already in /api
+app.use('/user', userRoutes);
+app.use('/refresh', refreshRoutes);
 
 // Health check
-app.get('/api/health', (req, res) => {
+app.get('/health', (req, res) => {
     res.json({ status: 'OK', message: 'API is running' });
 });
 
-// Only export the API (no static serving)
+// Root API endpoint
+app.get('/', (req, res) => {
+    res.json({ status: 'OK', message: 'Union Dashboard API', version: '1.0.0' });
+});
+
+// Export for Vercel
 module.exports = app;
