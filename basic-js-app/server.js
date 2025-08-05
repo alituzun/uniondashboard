@@ -5,19 +5,7 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
-
-// Configure CORS for production domain
-const corsOptions = {
-    origin: [
-        'http://localhost:3000',
-        'https://melkor-miniuriondashboard.xyz',
-        'http://melkor-miniuriondashboard.xyz'
-    ],
-    credentials: true,
-    optionsSuccessStatus: 200
-};
-
-app.use(cors(corsOptions));
+app.use(cors());
 
 // Use express built-in parsers instead of body-parser to avoid iconv-lite issues
 app.use(express.json({ limit: '50mb' }));
