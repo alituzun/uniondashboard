@@ -2,11 +2,10 @@
   "name": "basic-js-app",
   "version": "1.0.0",
   "description": "A basic JavaScript application to collect user information and manage a database.",
-  "main": "api/index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "node src/index.js",
-    "build": "echo 'No build step required'"
+    "start": "node server.js",
+    "build": "echo 'Build script not defined yet'"
   },
   "dependencies": {
     "axios": "^1.11.0",
