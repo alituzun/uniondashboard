@@ -1,56 +1,56 @@
 // testnet-stats.js - Testnet istatistiklerini yükleyip grafikler oluşturur
 (function(){
-    // Updated level stats data with latest statistics from CSV split results
+    // Updated level stats data with latest statistics from API calculation - August 2025
     let levelStats = {
         "1": {
-            "count": 67465,
-            "totalXp": 818530,
+            "count": 67596,
+            "totalXp": 820255,
             "averageXp": 12
         },
         "2": {
-            "count": 65313,
-            "totalXp": 3643355,
+            "count": 65348,
+            "totalXp": 3650460,
             "averageXp": 56
         },
         "3": {
-            "count": 83160,
-            "totalXp": 9784970,
+            "count": 83217,
+            "totalXp": 9792985,
             "averageXp": 118
         },
         "4": {
-            "count": 30650,
-            "totalXp": 6934685,
+            "count": 30658,
+            "totalXp": 6940860,
             "averageXp": 226
         },
         "5": {
-            "count": 33755,
-            "totalXp": 12885720,
+            "count": 33773,
+            "totalXp": 12892920,
             "averageXp": 382
         },
         "6": {
-            "count": 33350,
-            "totalXp": 17577385,
+            "count": 33361,
+            "totalXp": 17582795,
             "averageXp": 527
         },
         "7": {
-            "count": 34382,
-            "totalXp": 22781595,
+            "count": 34381,
+            "totalXp": 22782550,
             "averageXp": 663
         },
         "8": {
             "count": 3563,
-            "totalXp": 2982000,
+            "totalXp": 2982570,
             "averageXp": 837
         },
         "9": {
-            "count": 711,
-            "totalXp": 721745,
-            "averageXp": 1014
+            "count": 712,
+            "totalXp": 721410,
+            "averageXp": 1013
         },
         "10": {
-            "count": 61,
-            "totalXp": 73820,
-            "averageXp": 1230
+            "count": 62,
+            "totalXp": 76145,
+            "averageXp": 1228
         }
     };
     
@@ -83,9 +83,9 @@
     }
 
     function calculateTotals() {
-        // Updated with latest CSV data showing exact user distribution
-        totalUsers = 352410;
-        totalXp = 78203805;
+        // Updated with latest API calculated data showing exact user distribution
+        totalUsers = 352671;
+        totalXp = 78242950;
     }
 
     function createStatsCards() {
