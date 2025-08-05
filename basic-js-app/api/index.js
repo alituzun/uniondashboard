@@ -22,5 +22,5 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', message: 'API is running' });
 });
 
-// Export for Vercel
+// Only export the API (no static serving)
 module.exports = app;
