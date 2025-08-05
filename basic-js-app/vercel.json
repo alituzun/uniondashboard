@@ -1,9 +1,31 @@
 {
   "version": 2,
-  "rewrites": [
+  "builds": [
     {
-      "source": "/(.*)",
-      "destination": "/api/index.js"
+      "src": "api/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "src/frontend/**",
+      "use": "@vercel/static"
     }
-  ]
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/(.*\\.(js|css|html|png|jpg|jpeg|gif|svg|ico))",
+      "dest": "/src/frontend/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.js"
+    }
+  ],
+  "env": {
+    "SUPABASE_URL": "https://bvvlqbtwqetltdcvioie.supabase.co",
+    "SUPABASE_API_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2dmxxYnR3cWV0bHRkY3Zpb2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQwMjM4MzMsImV4cCI6MjA2OTU5OTgzM30.d-leDFpzc6uxDvq47_FC0Fqh0ztaL11Oozm-z6T9N_M"
+  }
 }
