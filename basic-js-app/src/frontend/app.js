@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
             let user = null;
             let url, response, users;
             // 1. display_name ilike (tam eşleşme)
-            url = `${supabaseUrl}/leaderboard_full_0408?display_name=ilike.${username}`;
+            url = `${supabaseUrl}/leaderboard_full_0208?display_name=ilike.${username}`;
             response = await fetch(url, {
                 headers: {
                     'apikey': apiKey,
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             // 2. username ilike (tam eşleşme)
             if (!user) {
-                url = `${supabaseUrl}/leaderboard_full_0408?username=ilike.${username}`;
+                url = `${supabaseUrl}/leaderboard_full_0208?username=ilike.${username}`;
                 response = await fetch(url, {
                     headers: {
                         'apikey': apiKey,
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             // 3. display_name ilike (partial match, % doğrudan yazılır ve encode edilmez)
             if (!user) {
-                url = `${supabaseUrl}/leaderboard_full_0408?display_name=ilike.%${username}%`;
+                url = `${supabaseUrl}/leaderboard_full_0208?display_name=ilike.%${username}%`;
                 response = await fetch(url, {
                     headers: {
                         'apikey': apiKey,
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             // 4. username ilike (partial match)
             if (!user) {
-                url = `${supabaseUrl}/leaderboard_full_0408?username=ilike.%${username}%`;
+                url = `${supabaseUrl}/leaderboard_full_0208?username=ilike.%${username}%`;
                 response = await fetch(url, {
                     headers: {
                         'apikey': apiKey,
