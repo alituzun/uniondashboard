@@ -1,14 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const cors = require('cors');
 const userRoutes = require('./backend/routes/user');
 const refreshRoutes = require('./backend/routes/refresh');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Add CORS
-app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
