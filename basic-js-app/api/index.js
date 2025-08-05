@@ -1,10 +1,10 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 
+// Create express app
 const app = express();
 
-// CORS
+// Middleware
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
@@ -13,21 +13,14 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 const userRoutes = require('../src/backend/routes/user');
 const refreshRoutes = require('../src/backend/routes/refresh');
 
-// Routes
+// API Routes
 app.use('/api/user', userRoutes);
 app.use('/api/refresh', refreshRoutes);
 
-// Static files
-app.use(express.static(path.join(__dirname, '../src/frontend')));
-
-// Root route
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../src/frontend', 'index.html'));
+// Health check
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'OK', message: 'API is running' });
 });
 
-// Catch all route
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../src/frontend', 'index.html'));
-});
-
+// Export for Vercel
 module.exports = app;

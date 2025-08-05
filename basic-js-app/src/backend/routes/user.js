@@ -1748,7 +1748,7 @@ router.get('/export-all-achievements-to-csv-old', async (req, res) => {
         
         // Fetch all users from leaderboard_full_0208
         console.log('Fetching all users from leaderboard_full_0208...');
-        const leaderboardUrl = `${supabaseUrl}/leaderboard_full_0208?select=display_name,jsonInput`;
+        const leaderboardUrl = `${supabaseUrl}/leaderboard_full_0408?select=display_name,jsonInput`;
         const leaderboardResponse = await axios.get(leaderboardUrl, {
             headers: {
                 'apikey': apiKey,
@@ -1757,7 +1757,7 @@ router.get('/export-all-achievements-to-csv-old', async (req, res) => {
         });
         
         const users = leaderboardResponse.data;
-        console.log(`Found ${users.length} users in leaderboard_full_0208`);
+        console.log(`Found ${users.length} users in leaderboard_full_0408`);
         
         // CSV header
         const csvRows = [
@@ -1982,6 +1982,129 @@ router.get('/leaderboard/:username', async (req, res) => {
         res.status(error.response?.status || 500).json({
             message: 'Error fetching leaderboard data',
             error: error.message
+        });
+    }
+});
+
+// Yeni endpoint: leaderboard_export.csv dosyasını Supabase leaderboard_full_0408 tablosuna import et
+router.post('/import-leaderboard-to-supabase', async (req, res) => {
+    try {
+        // Supabase credentials - updated with correct keys
+        const supabaseUrl = 'https://bvvlqbtwqetltdcvioie.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2dmxxYnR3cWV0bHRkY3Zpb2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQwMjM4MzMsImV4cCI6MjA2OTU5OTgzM30.d-leDFpzc6uxDvq47_FC0Fqh0ztaL11Oozm-z6T9N_M';
+
+        console.log('🚀 Starting leaderboard import to Supabase...');
+
+        // CSV dosyasını oku
+        const csvPath = path.join(__dirname, '../db/leaderboard_export.csv');
+        if (!fs.existsSync(csvPath)) {
+            return res.status(404).json({ message: 'leaderboard_export.csv dosyası bulunamadı' });
+        }
+
+        const csvData = fs.readFileSync(csvPath, 'utf8');
+        const lines = csvData.split(/\r?\n/).slice(1); // başlık hariç
+
+        console.log(`📊 Total lines to process: ${lines.length}`);
+
+        let totalProcessed = 0;
+        let totalInserted = 0;
+        let totalErrors = 0;
+        const errors = [];
+
+        const batchSize = 100; // Supabase batch insert size
+        let batch = [];
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            try {
+                // CSV formatı: "display_name","jsonInput"
+                const match = line.match(/^"([^"]+)","(.+)"$/);
+                if (!match) {
+                    console.log(`⚠️ Skipping invalid line ${i + 1}: ${line.substring(0, 100)}...`);
+                    continue;
+                }
+
+                const displayName = match[1];
+                const jsonInputStr = match[2].replace(/""/g, '"'); // Escape edilmiş çift tırnakları düzelt
+
+                let jsonInput;
+                try {
+                    jsonInput = JSON.parse(jsonInputStr);
+                } catch (parseError) {
+                    console.log(`⚠️ JSON parse error for ${displayName}:`, parseError.message);
+                    totalErrors++;
+                    errors.push(`JSON parse error for ${displayName}: ${parseError.message}`);
+                    continue;
+                }
+
+                // Batch'e ekle
+                batch.push({
+                    display_name: displayName,
+                    jsonInput: jsonInput
+                });
+
+                totalProcessed++;
+
+                // Batch dolu ise Supabase'e gönder
+                if (batch.length >= batchSize || i === lines.length - 1) {
+                    try {
+                        // Insert batch to Supabase
+                        const response = await axios({
+                            method: 'POST',
+                            url: `${supabaseUrl}/rest/v1/leaderboard_full_0408`,
+                            headers: {
+                                'apikey': supabaseKey,
+                                'Authorization': `Bearer ${supabaseKey}`,
+                                'Content-Type': 'application/json',
+                                'Prefer': 'return=minimal'
+                            },
+                            data: batch
+                        });
+
+                        totalInserted += batch.length;
+                        console.log(`✅ Batch inserted: ${batch.length} records (Total: ${totalInserted}/${totalProcessed})`);
+                        
+                    } catch (insertError) {
+                        console.error('❌ Batch insert error:', insertError.response?.data || insertError.message);
+                        totalErrors += batch.length;
+                        errors.push(`Batch insert error: ${insertError.response?.data?.message || insertError.message}`);
+                    }
+
+                    // Reset batch
+                    batch = [];
+                }
+
+            } catch (lineError) {
+                console.error(`❌ Error processing line ${i + 1}:`, lineError.message);
+                totalErrors++;
+                errors.push(`Line ${i + 1} error: ${lineError.message}`);
+            }
+        }
+
+        console.log('🎉 Leaderboard import completed!');
+        console.log(`📊 Summary: ${totalInserted} inserted, ${totalErrors} errors out of ${totalProcessed} processed`);
+
+        res.json({
+            success: true,
+            message: 'Leaderboard import to Supabase completed',
+            summary: {
+                totalProcessed,
+                totalInserted,
+                totalErrors,
+                table: 'leaderboard_full_0408'
+            },
+            errors: errors.slice(0, 10) // İlk 10 hatayı göster
+        });
+
+    } catch (error) {
+        console.error('💥 Critical error during leaderboard import:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Leaderboard import to Supabase failed', 
+            error: error.message,
+            stack: error.stack
         });
     }
 });
